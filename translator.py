@@ -1,3 +1,5 @@
+# NYASCRIPT !!!
+
 script = []
 
 with open("main.nyas", "r") as file:
