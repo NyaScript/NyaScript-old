@@ -6,7 +6,7 @@ Please have python 3 installed
 For now, just put the translator.py in your project folder.
 
 ## Usage
-`python <file.nyas> <options>`
+`python translator.py <file.nyas> <options>`
 
 Options: <br>
 `-n`: Do not execute after translation <br>
