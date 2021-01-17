@@ -1,2 +1,8 @@
 dev/
 main.*
+build/
+dist/
+build.log
+tools/
+setup.py
+nyascript.spec
