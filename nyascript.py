@@ -1,4 +1,4 @@
-from sys import argv, executable
+from sys import argv
 import os
 
 # NYASCRIPT !!!
@@ -37,17 +37,33 @@ with open(src, "r") as file:
             if script[index][i] == '':
                 del script[index][i]
 
-loop = []
+inCondition = False
+ifAdded = False
+
+inFunction = False
+inDefinition = False
+
+inFunction = False
+inDefinition = False
+
+CallFunction = ""
 
 tabs = 0
 
-variables = {}
+functions = {}
 
 def translate(i, word):
+        global inFunction
+        global CallFunction
+        global inCondition
+        global ifAdded
         global script
         global useExtended
-        global variables
         global tabs
+        global functions
+
+        writeTabs = ''
+        writeTabs = ''.join(["\t" for i in range(tabs)])
 
         if word == 'OwO':
             useExtended = False
@@ -58,76 +74,120 @@ def translate(i, word):
             return ['']
 
         elif word == 'Nya':
-            return ['cursor += 1\n']
+            return [writeTabs, 'cursor += 1\n']
 
         elif word == 'nYA':
             tabs -= 1
-            return ['\n']
+            return ['']
 
         elif word == 'nyA':
-            return ['cursor -= 1\n']
+            return [writeTabs, 'cursor -= 1\n']
 
         elif word == 'NyA':
-            return ['array[cursor] += 1\n']
+            return [writeTabs, 'array[cursor] += 1\n']
 
         elif word == 'nYa':
-            return ['array[cursor] -= 1\n']
+            return [writeTabs, 'array[cursor] -= 1\n']
 
         elif word == 'NYA':
-            return ['print(chr(array[cursor]), end="")\n']
-            
+            return [writeTabs, 'print(chr(array[cursor]), end="")\n',]
+
         elif word == 'nya':
-            return ['inpt = input()\nif inpt:\n\tarray[cursor] = ord(inpt[0])\n']
+            return [writeTabs, 'array[cursor] = input()\n']
         
         elif word == 'NYa':
             tabs += 1
-            return [f'loopCursor[{tabs - 1}] = int(str(cursor))\n',f'while array[loopCursor[{tabs -1}]]:\n']
+            return [writeTabs, f'loopCursor[{tabs -1}] = cursor\n',writeTabs, f'while array[loopCursor[{tabs-1}]]:\n']
 
         elif word == 'nyan':
-            return ['temp = int(str(array[cursor]))\n']
+            return [writeTabs, 'temp =  array[cursor]\n']
 
         elif word == 'NYAN':
-            return ['array[cursor] = int(str(temp))\n']
+            return [writeTabs, 'array[cursor] = temp\n']
         
         elif word == 'NyaN':
-            return ['temp += 1\n']
+            return [writeTabs, 'temp += 1\n']
 
         elif word == 'nYAn':
-            return ['temp -= 1\n']
+            return [writeTabs, 'temp -= 1\n']
 
         elif word == 'NYAn':
-            return ['temp += int(str(array[cursor]))\n']
+            return [writeTabs, 'temp += array[cursor]\n']
 
         elif word == 'nYAN':
-            return ['temp -= int(str(array[cursor]))\n']
+            return [writeTabs, 'temp -= array[cursor]\n']
 
         elif word == 'NyAN':
-            return ['temp = 0\n']
+            return [writeTabs, 'temp = 0\n']
 
         elif useExtended:
+
+            if word == 'NYA_UwU':
+                return [writeTabs, 'print(" ".join(str(array[cursor]).split("\\\\^^")), end="")\n']
+
             if word.startswith('$'):
-                if not variables.get(word[1:]) and not variables.get(word[1:]) == 0:
-                    variables.update({word[1:]: 0})
-                    return [f'{word[1:]} = 0\n']
-                elif variables.get(word[1:]) or variables.get(word[1:]) == 0:
-                    variables.update({word[1:]: script[i + 1]})
-                    if script[i + 1] == '.':
-                        return [f'{word[1:]} = array[cursor]\n']
-                    elif script[i + 1] == '^':
-                        return [f'{word[1:]} = temp\n']
-                    elif script[i + 1] == '+':
-                        return [f'{word[1:]} += array[cursor]\n']
-                    elif script[i + 1] == '-':
-                        return [f'{word[1:]} -= array[cursor]\n']
-                    else:
-                        return [f'{word[1:]} = int({script[i + 1]})\n']
+                if script[i + 1] == '.':
+                    return [writeTabs, f'{word[1:]} = array[cursor]\n']
+                elif script[i + 1] == '^':
+                    return [writeTabs, f'{word[1:]} = temp\n']
+                elif script[i + 1] == '+':
+                    return [writeTabs, f'{word[1:]} += array[cursor]\n']
+                elif script[i + 1] == '-':
+                    return [writeTabs, f'{word[1:]} -= array[cursor]\n']
                 else:
-                    return ['print("LOL")\n']
+                    return [writeTabs, f'{word[1:]} = {script[i + 1]}\n']
             if word.startswith('#'):
-                if not variables.get(word[1:]) and not variables.get(word[1:]) == 0:
-                    return ['print(ERROR: NO VARIABLES TO CALL UwU)']
-                elif variables.get(word[1:]) or variables.get(word[1:]) == 0:
-                    return [f'array[cursor] = int(str({word[1:]}))\n']
+                return [writeTabs, f'array[cursor] = {word[1:]}\n']
+
+            if word == 'Nya?':
+                tabs += 1
+                inCondition = True
+
+            if inCondition:
+                if word == 'gweater':
+                    if ifAdded:
+                        return [writeTabs[1:], 'elif temp > array[cursor]:\n']
+                    else:
+                        return [writeTabs[1:], 'if temp > array[cursor]:\n']
+                elif word == 'lower':
+                    if ifAdded:
+                        return [writeTabs[1:], 'elif temp < array[cursor]:\n']
+                    else:
+                        return [writeTabs[1:], 'if temp < array[cursor]:\n']
+                if word == 'eqwal':
+                    if ifAdded:
+                        return [writeTabs[1:], 'elif temp == array[cursor]:\n']
+                    else:
+                        return [writeTabs[1:], 'if temp == array[cursor]:\n']
+            elif word == '?Nya':
+                tabs -= 1
+                inCondition = False
+                return ['']
+
+            if word == 'meow':
+                tabs += 1
+                funcName = script[i + 1]
+                funcArgs = []
+                if script[i + 2] == 'meOW':
+                    for l in script[i + 3:]:
+                        if l != 'MEow':
+                            funcArgs.append(l)
+                        else:
+                            break
+                functions.update({funcName: funcArgs})
+                return [writeTabs, f"def {funcName}({', '.join(funcArgs)}):\n", writeTabs + '\t',
+                        'global array, cursor, temp\n']
+            elif word == 'MEOW':
+                tabs -= 1
+                return ['']
+
+            if word.startswith('~'):
+                return [writeTabs, word[1:] + "(" + ', '.join(script[i + 1].split(',')).replace('.', 'array[cursor]')
+                .replace('^', 'temp').replace('a', 'int(array[cursor])').replace('t', 'int(temp)') + ")\n"]
+                                                                                        
+            
+
+            
         return ['']
 
 script_noLines = []
@@ -139,23 +199,22 @@ script = ' '.join(script_noLines).split(' ')
 del script_noLines
 
 translated_code = ['array = [0 for i in range(50000)]\n', 'cursor = 0\n', 
-                    'loopCursor = [0]\n', 'temp = 0\n']
+                    'loopCursor = [0 for i in range(100)]\n', 'temp = 0\n']
+
+writeTabs = ''
 
 with open(output, "w+") as file:
     i = -1
     for word in script:
         i += 1
-        script[i] = word.replace('\n', '')
-        script[i] = script[i].replace('\t', '')
         if word == '' or word == None:
             del script[i]
-        writeTabs = ''
-        for i in range(tabs):
-            writeTabs += '\t'
-        for c in translate(i, word):
-            translated_code.append(writeTabs + c)
+        else:
+            writeTabs = ''
+            for c in translate(i, word):
+                translated_code.append(c)
     translated_code.append('print()')
     file.write(''.join(translated_code))
 
 if execute:
-    os.system(f'{os.path.dirname(executable)}\\python {output}')
+    exec(open(output).read())
