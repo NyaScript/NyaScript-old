@@ -1,0 +1,9 @@
+{
+    "import_folder": "./lib/",
+    "distributable_folder": "./dist/",
+    "compile_options": {
+        "array_size": 50000,
+        "begin_pos": 0,
+        "loopCursor_size": 100
+    }
+}
