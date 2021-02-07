@@ -1,9 +1,7 @@
-dev/
+addons/
 main.*
-build/
+lib/
 dist/
-build.log
 tools/
 setup.py
-nyascript.spec
-Introducing\ NyaScript/
+__pycache__/
